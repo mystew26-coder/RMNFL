@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RMNFL League Platform</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: '#0a0e1a',
+            card: '#0f1425',
+            red: '#DC2626',
+            gold: '#F59E0B'
+          },
+          fontFamily: {
+            bebas: ['Bebas Neue', 'sans-serif'],
+            inter: ['Inter', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: #0a0e1a;
+      color: #f8fafc;
+      font-family: Inter, sans-serif;
+    }
+
+    .glass {
+      background: rgba(15, 20, 37, .88);
+      border: 1px solid rgba(148,163,184,.14);
+      box-shadow: 0 10px 35px rgba(0,0,0,.22);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-scroll::-webkit-scrollbar { height: 3px; }
+    .nav-scroll::-webkit-scrollbar-thumb { background:#DC2626; border-radius:99px; }
+
+    .ticker {
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .ticker-track {
+      display: inline-block;
+      padding-left: 100%;
+      animation: ticker 30s linear infinite;
+    }
+
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to { transform: translateX(-100%); }
+    }
+
+    .page {
+      display: none;
+      animation: fadeIn .18s ease;
+    }
+
+    .page.active { display:block; }
+
+    @keyframes fadeIn {
+      from { opacity:0; transform:translateY(4px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+
+    .input {
+      width: 100%;
+      background:#080c17;
+      border:1px solid #263149;
+      border-radius:.6rem;
+      padding:.65rem .8rem;
+      color:#fff;
+      outline:none;
+    }
+
+    .input:focus { border-color:#DC2626; box-shadow:0 0 0 2px rgba(220,38,38,.12); }
+
+    select.input option { background:#0f1425; }
+
+    .btn {
+      border-radius:.6rem;
+      padding:.65rem 1rem;
+      font-weight:700;
+      transition:.15s;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:.45rem;
+    }
+
+    .btn:hover { transform:translateY(-1px); }
+    .btn-red { background:#DC2626; color:#fff; }
+    .btn-red:hover { background:#b91c1c; }
+    .btn-gold { background:#F59E0B; color:#111827; }
+    .btn-dark { background:#172033; border:1px solid #2b3852; color:#fff; }
+    .btn-danger { background:#7f1d1d; color:#fff; }
+
+    .section-title {
+      font-family:Bebas Neue,sans-serif;
+      letter-spacing:.04em;
+      font-size:2rem;
+    }
+
+    .stat-number {
+      font-family:Bebas Neue,sans-serif;
+      font-size:2.2rem;
+      line-height:1;
+    }
+
+    table { border-collapse:collapse; width:100%; }
+    th {
+      background:#11182a;
+      color:#94a3b8;
+      text-transform:uppercase;
+      font-size:.7rem;
+      letter-spacing:.08em;
+      white-space:nowrap;
+    }
+    td, th { padding:.75rem .7rem; border-bottom:1px solid #1e293b; }
+    tr:hover td { background:rgba(30,41,59,.25); }
+
+    .scroll-table { overflow-x:auto; }
+
+    .badge {
+      display:inline-flex;
+      align-items:center;
+      border-radius:999px;
+      padding:.2rem .55rem;
+      font-size:.68rem;
+      font-weight:800;
+    }
+
+    .modal-backdrop {
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.7);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:100;
+      padding:1rem;
+    }
+    .modal-backdrop.open { display:flex; }
+
+    .toast-container {
+      position:fixed;
+      right:1rem;
+      bottom:1rem;
+      z-index:200;
+      display:flex;
+      flex-direction:column;
+      gap:.5rem;
+    }
+
+    .toast {
+      min-width:260px;
+      max-width:360px;
+      background:#111827;
+      border:1px solid #334155;
+      border-left:4px solid #DC2626;
+      border-radius:.7rem;
+      padding:.85rem 1rem;
+      box-shadow:0 15px 40px rgba(0,0,0,.35);
+      animation:toastIn .2s ease;
+    }
+
+    @keyframes toastIn {
+      from { opacity:0; transform:translateX(15px); }
+      to { opacity:1; transform:translateX(0); }
+    }
+
+    .team-logo {
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      background:linear-gradient(135deg,#DC2626,#7f1d1d);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:800;
+      font-size:.7rem;
+      flex-shrink:0;
+    }
+
+    .hero-grid {
+      background:
+        radial-gradient(circle at 85% 20%, rgba(220,38,38,.18), transparent 30%),
+        radial-gradient(circle at 15% 80%, rgba(245,158,11,.08), transparent 25%);
+    }
+
+    .hidden-admin { display:none !important; }
+
+    @media (max-width:640px) {
+      .section-title { font-size:1.65rem; }
+      .stat-number { font-size:1.8rem; }
+      td, th { padding:.55rem .45rem; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- TOP NAV -->
+  <header class="sticky top-0 z-50 border-b border-slate-800 bg-[#0a0e1a]/95 backdrop-blur-xl">
+    <div class="max-w-[1600px] mx-auto">
+      <div class="h-16 px-4 flex items-center gap-4">
+        <button onclick="showPage('home')" class="flex items-center gap-3 shrink-0">
+          <div class="w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center font-extrabold text-white">RM</div>
+          <div class="hidden sm:block text-left">
+            <div class="font-bebas text-xl tracking-wide">RMNFL</div>
+            <div class="text-[9px] text-slate-500 uppercase tracking-[.2em]">League Platform</div>
+          </div>
+        </button>
+
+        <nav id="nav" class="nav-scroll flex gap-1 overflow-x-auto min-w-0 flex-1">
+          <button data-page="home" class="nav-btn active px-3 py-2 rounded-md text-sm font-semibold whitespace-nowrap" onclick="showPage('home')">Home</button>
+          <button data-page="standings" class="nav-btn px-3 py-2 rounded-md text-sm font-semibold whitespace-nowrap" onclick="showPage('standings')">Standings</button>
+          <button data-page="schedule" class="nav-btn px-3 py-2 rounded-md text-sm font-semibold whitespace-nowrap" onclick="showPage('schedule')">Schedule</button>
+          <button data-page="scores" class="nav-btn px-3 py-2 rounded-md text-sm font-semibold whitespace-nowrap" onclick="showPage('scores')">Scores</button>
+          <button data-page="rosters" class="nav-btn px-3 py-2 rounded-md text-sm font-semibold whitespace-nowrap" onclick="showPage('rosters')">Rosters</button>
+          <button data-page="rules" class="nav-btn px-3 py-2 rounded-md text-sm font-semibold whitespace-nowrap" onclick="showPage('rules')">Rules</button>
+          <button data-page="trade" class="nav-btn px-3 py-2 rounded-md text-sm font-semibold whitespace-nowrap" onclick="showPage('trade')">Trade Block</button>
+          <button data-page="media" class="nav-btn px-3 py-2 rounded-md text-sm font-semibold whitespace-nowrap" onclick="showPage('media')">Media</button>
+          <button data-page="owner" class="nav-btn px-3 py-2 rounded-md text-sm font-semibold whitespace-nowrap" onclick="showPage('owner')">Owner Portal</button>
+          <button data-page="madden" class="nav-btn px-3 py-2 rounded-md text-sm font-semibold whitespace-nowrap" onclick="showPage('madden')">Madden Sync</button>
+          <button data-page="discord" class="nav-btn px-3 py-2 rounded-md text-sm font-semibold whitespace-nowrap" onclick="showPage('discord')">Discord</button>
+          <button data-page="admin" class="nav-btn px-3 py-2 rounded-md text-sm font-semibold whitespace-nowrap" onclick="showPage('admin')">Admin</button>
+        </nav>
+
+        <div class="hidden md:flex items-center gap-2 shrink-0">
+          <span class="w-2 h-2 rounded-full bg-green-500"></span>
+          <span class="text-xs text-slate-400">LIVE</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NEWS TICKER -->
+  <div class="border-b border-slate-800 bg-[#0f1425] h-9 flex items-center">
+    <div class="bg-red-600 h-full px-4 flex items-center text-xs font-bold shrink-0">RMNFL NEWS</div>
+    <div class="ticker flex-1 text-xs text-slate-300">
+      <div id="tickerText" class="ticker-track"></div>
+    </div>
+  </div>
+
+  <main class="max-w-[1600px] mx-auto p-4 md:p-6">
+
+    <!-- HOME -->
+    <section id="page-home" class="page active">
+      <div class="glass hero-grid rounded-2xl p-6 md:p-8 mb-6 relative overflow-hidden">
+        <div class="relative z-10 max-w-3xl">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="badge bg-red-600 text-white">RMNFL</span>
+            <span id="seasonBanner" class="badge bg-amber-500 text-black">Season 2026</span>
+          </div>
+          <h1 class="font-bebas text-5xl md:text-7xl tracking-wide">THE RMNFL</h1>
+          <p class="text-slate-400 mt-2 max-w-xl">
+            The official digital league platform for owners, commissioners and competitors.
+            Scores, standings, schedules, rosters, trades and league operations in one place.
+          </p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <button class="btn btn-red" onclick="showPage('schedule')"><i data-lucide="calendar-days" class="w-4 h-4"></i> View Schedule</button>
+            <button class="btn btn-dark" onclick="showPage('standings')"><i data-lucide="trophy" class="w-4 h-4"></i> Standings</button>
+          </div>
+        </div>
+        <div class="absolute right-[-40px] bottom-[-80px] opacity-10">
+          <i data-lucide="shield" class="w-96 h-96"></i>
+        </div>
+      </div>
+
+      <div id="homeStats" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"></div>
+
+      <div class="grid xl:grid-cols-3 gap-6">
+        <div class="xl:col-span-2 space-y-6">
+          <div class="glass rounded-xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="section-title">Recent Scores</h2>
+              <button class="text-xs text-red-400 hover:text-red-300" onclick="showPage('scores')">All Scores →</button>
+            </div>
+            <div id="recentScores"></div>
+          </div>
+
+          <div class="glass rounded-xl p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="section-title">Upcoming Games</h2>
+              <button class="text-xs text-red-400 hover:text-red-300" onclick="showPage('schedule')">Full Schedule →</button>
+            </div>
+            <div id="upcomingGames"></div>
+          </div>
+        </div>
+
+        <div class="glass rounded-xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="section-title">Announcements</h2>
+            <span class="badge bg-red-900/50 text-red-300">Official</span>
+          </div>
+          <div id="announcementsHome" class="space-y-3"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STANDINGS -->
+    <section id="page-standings" class="page">
+      <div class="flex flex-wrap justify-between items-end gap-4 mb-6">
+        <div>
+          <div class="text-red-500 text-xs font-bold uppercase tracking-widest">League Table</div>
+          <h1 class="section-title text-4xl">Standings</h1>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-dark" onclick="sortStandings()">Sort / Reset</button>
+        </div>
+      </div>
+
+      <div class="grid xl:grid-cols-2 gap-6">
+        <div class="glass rounded-xl overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-800 flex justify-between">
+            <h2 class="font-bebas text-2xl text-red-400">AFC</h2>
+            <span class="text-xs text-slate-500">16 Teams</span>
+          </div>
+          <div class="scroll-table">
+            <table id="afcTable"></table>
+          </div>
+        </div>
+
+        <div class="glass rounded-xl overflow-hidden">
+          <div class="px-5 py-4 border-b border-slate-800 flex justify-between">
+            <h2 class="font-bebas text-2xl text-blue-400">NFC</h2>
+            <span class="text-xs text-slate-500">16 Teams</span>
+          </div>
+          <div class="scroll-table">
+            <table id="nfcTable"></table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCHEDULE -->
+    <section id="page-schedule" class="page">
+      <div class="mb-6">
+        <div class="text-red-500 text-xs font-bold uppercase tracking-widest">League Calendar</div>
+        <h1 class="section-title text-4xl">Schedule</h1>
+      </div>
+
+      <div class="glass rounded-xl p-4 mb-6">
+        <div class="flex flex-wrap gap-2" id="weekSelector"></div>
+      </div>
+
+      <div class="glass rounded-xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-800 flex justify-between items-center">
+          <h2 id="scheduleTitle" class="font-bebas text-2xl">Week 1</h2>
+          <span id="scheduleCount" class="text-xs text-slate-500"></span>
+        </div>
+        <div id="scheduleGames" class="divide-y divide-slate-800"></div>
+      </div>
+    </section>
+
+    <!-- SCORES -->
+    <section id="page-scores" class="page">
+      <div class="mb-6">
+        <div class="text-red-500 text-xs font-bold uppercase tracking-widest">Game Center</div>
+        <h1 class="section-title text-4xl">Score Reporting</h1>
+      </div>
+
+      <div class="glass rounded-xl p-5 mb-6">
+        <div class="flex flex-wrap gap-4 items-end">
+          <div>
+            <label class="text-xs text-slate-500 block mb-1">Week</label>
+            <select id="scoreWeek" class="input w-48" onchange="renderScoreGames()"></select>
+          </div>
+          <div class="text-sm text-slate-400">Enter completed game results below. Valid scores must be 0 or greater.</div>
+        </div>
+      </div>
+
+      <div id="scoreGames" class="grid lg:grid-cols-2 gap-4"></div>
+    </section>
+
+    <!-- ROSTERS -->
+    <section id="page-rosters" class="page">
+      <div class="mb-6">
+        <div class="text-red-500 text-xs font-bold uppercase tracking-widest">Personnel</div>
+        <h1 class="section-title text-4xl">Team Rosters</h1>
+      </div>
+
+      <div class="glass rounded-xl p-5 mb-6">
+        <label class="text-xs text-slate-500 block mb-1">Select Team</label>
+        <select id="rosterTeam" class="input max-w-xl" onchange="renderRoster()"></select>
+      </div>
+
+      <div id="rosterSummary" class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-5"></div>
+
+      <div class="glass rounded-xl overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-800">
+          <h2 id="rosterTitle" class="font-bebas text-2xl">Roster</h2>
+        </div>
+        <div class="scroll-table">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th><th>Name</th><th>Position</th><th>OVR</th><th>Age</th><th>Speed</th><th>Depth Chart</th>
+              </tr>
+            </thead>
+            <tbody id="rosterBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- RULES -->
+    <section id="page-rules" class="page">
+      <div class="mb-6">
+        <div class="text-red-500 text-xs font-bold uppercase tracking-widest">Official Rulebook</div>
+        <h1 class="section-title text-4xl">League Rules</h1>
+      </div>
+
+      <div id="rulesContent" class="space-y-4"></div>
+    </section>
+
+    <!-- TRADE BLOCK -->
+    <section id="page-trade" class="page">
+      <div class="mb-6">
+        <div class="text-red-500 text-xs font-bold uppercase tracking-widest">Player Movement</div>
+        <h1 class="section-title text-4xl">Trade Block</h1>
+      </div>
+
+      <div class="grid xl:grid-cols-3 gap-6">
+        <div class="glass rounded-xl p-5">
+          <h2 class="font-bebas text-2xl mb-4">Add Player to Block</h2>
+          <form id="tradeForm" class="space-y-3">
+            <input id="tradeOwner" class="input" placeholder="Owner Name" required>
+            <select id="tradeTeam" class="input" required></select>
+            <input id="tradePlayer" class="input" placeholder="Player Name" required>
+            <div class="grid grid-cols-2 gap-2">
+              <input id="tradePos" class="input" placeholder="Position" required>
+              <input id="tradeOvr" type="number" min="0" max="99" class="input" placeholder="OVR" required>
+            </div>
+            <textarea id="tradeNotes" class="input min-h-28" placeholder="Asking price / notes" required></textarea>
+            <button class="btn btn-red w-full" type="submit"><i data-lucide="plus"></i> Submit Trade Block</button>
+          </form>
+        </div>
+
+        <div class="xl:col-span-2">
+          <div id="tradeEntries" class="grid md:grid-cols-2 gap-4"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MEDIA -->
+    <section id="page-media" class="page">
+      <div class="mb-6">
+        <div class="text-red-500 text-xs font-bold uppercase tracking-widest">Broadcast Center</div>
+        <h1 class="section-title text-4xl">RMNFL Media</h1>
+      </div>
+
+      <div class="glass rounded-xl p-5 mb-6">
+        <div class="flex flex-col md:flex-row gap-3">
+          <input id="youtubeUrl" class="input" placeholder="YouTube channel URL">
+          <button class="btn btn-red admin-only" onclick="saveMediaUrl()">Save URL</button>
+          <button class="btn btn-dark" onclick="copyText('youtubeUrl')"><i data-lucide="copy"></i> Copy</button>
+          <button class="btn btn-dark" onclick="openUrl('youtubeUrl')"><i data-lucide="external-link"></i> Open</button>
+        </div>
+      </div>
+
+      <div class="grid xl:grid-cols-3 gap-6">
+        <div class="xl:col-span-2 glass rounded-xl p-5">
+          <h2 class="font-bebas text-2xl mb-4">League Broadcast</h2>
+          <div id="mediaEmbed" class="aspect-video bg-black rounded-xl flex items-center justify-center text-slate-500">
+            <div class="text-center">
+              <i data-lucide="play-circle" class="w-14 h-14 mx-auto mb-3"></i>
+              <p>Add the league YouTube URL to configure broadcasts.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass rounded-xl p-5">
+          <h2 class="font-bebas text-2xl mb-4">Stream Schedule</h2>
+          <div id="streamSchedule" class="space-y-3"></div>
+        </div>
+      </div>
+
+      <div class="glass rounded-xl p-5 mt-6">
+        <h2 class="font-bebas text-2xl mb-4">Recent Highlights</h2>
+        <div id="highlights" class="grid md:grid-cols-3 gap-4"></div>
+      </div>
+    </section>
+
+    <!-- OWNER PORTAL -->
+    <section id="page-owner" class="page">
+      <div class="mb-6">
+        <div class="text-red-500 text-xs font-bold uppercase tracking-widest">Private Area</div>
+        <h1 class="section-title text-4xl">Owner Portal</h1>
+      </div>
+
+      <div id="ownerLogin" class="max-w-md mx-auto glass rounded-xl p-6">
+        <div class="w-14 h-14 rounded-xl bg-red-600/20 text-red-500 flex items-center justify-center mb-4">
+          <i data-lucide="lock-keyhole" class="w-7 h-7"></i>
+        </div>
+        <h2 class="font-bebas text-3xl">Owner Login</h2>
+        <p class="text-sm text-slate-500 mb-5">Use your team and league password.</p>
+        <form id="ownerLoginForm" class="space-y-3">
+          <select id="ownerTeamLogin" class="input" required></select>
+          <input id="ownerPassword" type="password" class="input" placeholder="Password" required>
+          <button class="btn btn-red w-full">Enter Owner Portal</button>
+        </form>
+      </div>
+
+      <div id="ownerDashboard" class="hidden"></div>
+    </section>
+
+    <!-- MADDEN SYNC -->
+    <section id="page-madden" class="page">
+      <div class="mb-6">
+        <div class="text-red-500 text-xs font-bold uppercase tracking-widest">Game Data</div>
+        <h1 class="section-title text-4xl">Madden Sync</h1>
+      </div>
+
+      <div class="glass rounded-xl p-5 mb-6">
+        <div class="flex flex-col md:flex-row gap-3">
+          <input id="companionUrl" class="input" placeholder="Madden Companion App league URL">
+          <button class="btn btn-red admin-only" onclick="saveCompanionUrl()">Save URL</button>
+          <button class="btn btn-dark" onclick="copyText('companionUrl')"><i data-lucide="copy"></i> Copy URL</button>
+          <button class="btn btn-dark" onclick="openUrl('companionUrl')"><i data-lucide="external-link"></i> Open</button>
+        </div>
+        <p class="text-xs text-slate-500 mt-2">This is the league URL owners paste into the Madden Companion App. It is not a text code.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-4 mb-6">
+        <div class="glass rounded-xl p-5">
+          <div class="text-xs text-slate-500">Last Synced</div>
+          <div id="lastSynced" class="font-bebas text-2xl mt-1">Never</div>
+        </div>
+        <div class="glass rounded-xl p-5">
+          <div class="text-xs text-slate-500">Games Synced</div>
+          <div id="gamesSynced" class="stat-number mt-1">0</div>
+        </div>
+        <div class="glass rounded-xl p-5">
+          <div class="text-xs text-slate-500">Status</div>
+          <div id="syncStatus" class="mt-2 badge bg-green-900 text-green-300">SYNCED</div>
+        </div>
+      </div>
+
+      <div class="grid xl:grid-cols-2 gap-6">
+        <div class="glass rounded-xl p-5">
+          <h2 class="font-bebas text-2xl mb-4">How To Sync</h2>
+          <ol class="space-y-4">
+            <li class="flex gap-3"><span class="team-logo">1</span><div><b>Download</b><p class="text-sm text-slate-500">Install the Madden Companion App.</p></div></li>
+            <li class="flex gap-3"><span class="team-logo">2</span><div><b>Open</b><p class="text-sm text-slate-500">Launch the companion app.</p></div></li>
+            <li class="flex gap-3"><span class="team-logo">3</span><div><b>Tap Join League</b><p class="text-sm text-slate-500">Choose the league join option.</p></div></li>
+            <li class="flex gap-3"><span class="team-logo">4</span><div><b>Paste URL</b><p class="text-sm text-slate-500">Paste the RMNFL Companion App URL.</p></div></li>
+            <li class="flex gap-3"><span class="team-logo">5</span><div><b>Sync After Each Game</b><p class="text-sm text-slate-500">Sync your results after every completed game.</p></div></li>
+          </ol>
+        </div>
+
+        <div class="glass rounded-xl p-5">
+          <h2 class="font-bebas text-2xl mb-4">Manual Score Entry</h2>
+          <form id="manualScoreForm" class="space-y-3">
+            <select id="manualWeek" class="input" required></select>
+            <select id="manualGame" class="input" required></select>
+            <div class="grid grid-cols-2 gap-2">
+              <input id="manualHomeScore" type="number" min="0" class="input" placeholder="Home Score" required>
+              <input id="manualAwayScore" type="number" min="0" class="input" placeholder="Away Score" required>
+            </div>
+            <button class="btn btn-red w-full">Submit Manual Score</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="glass rounded-xl overflow-hidden mt-6">
+        <div class="px-5 py-4 border-b border-slate-800">
+          <h2 class="font-bebas text-2xl">Sync Log</h2>
+        </div>
+        <div class="scroll-table">
+          <table>
+            <thead><tr><th>Timestamp</th><th>Type</th><th>Status</th><th>Games Updated</th></tr></thead>
+            <tbody id="syncLog"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- DISCORD -->
+    <section id="page-discord" class="page">
+      <div class="mb-6">
+        <div class="text-red-500 text-xs font-bold uppercase tracking-widest">Community</div>
+        <h1 class="section-title text-4xl">Discord</h1>
+      </div>
+
+      <div class="glass rounded-2xl p-7 mb-6 text-center">
+        <div class="w-16 h-16 rounded-2xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto mb-4">
+          <i data-lucide="message-circle" class="w-8 h-8"></i>
+        </div>
+        <h2 class="font-bebas text-4xl">Join The RMNFL Server</h2>
+        <p class="text-slate-500 max-w-lg mx-auto my-3">Official league communication, scheduling, discipline, media and owner discussions.</p>
+        <div class="max-w-2xl mx-auto flex flex-col sm:flex-row gap-2 mt-5">
+          <input id="discordUrl" class="input" placeholder="Discord invite URL">
+          <button class="btn btn-red admin-only" onclick="saveDiscordUrl()">Save</button>
+          <button class="btn btn-gold" onclick="openUrl('discordUrl')"><i data-lucide="log-in"></i> Join Server</button>
+        </div>
+      </div>
+
+      <div class="grid xl:grid-cols-2 gap-6">
+        <div class="glass rounded-xl p-5">
+          <h2 class="font-bebas text-2xl mb-4">Channel Map</h2>
+          <div class="grid sm:grid-cols-2 gap-2">
+            <div class="p-3 bg-slate-900 rounded-lg">📣 <b>announcements</b></div>
+            <div class="p-3 bg-slate-900 rounded-lg">📋 <b>rules</b></div>
+            <div class="p-3 bg-slate-900 rounded-lg">🏈 <b>scores</b></div>
+            <div class="p-3 bg-slate-900 rounded-lg">💬 <b>general</b></div>
+            <div class="p-3 bg-slate-900 rounded-lg">⚡ <b>discipline</b></div>
+            <div class="p-3 bg-slate-900 rounded-lg">🎥 <b>media</b></div>
+            <div class="p-3 bg-slate-900 rounded-lg">🏆 <b>playoffs</b></div>
+            <div class="p-3 bg-slate-900 rounded-lg">📅 <b>scheduling</b></div>
+            <div class="p-3 bg-slate-900 rounded-lg">🔊 <b>voice</b></div>
+            <div class="p-3 bg-slate-900 rounded-lg">🤝 <b>trades</b></div>
+          </div>
+        </div>
+
+        <div class="glass rounded-xl p-5">
+          <h2 class="font-bebas text-2xl mb-4">Roles Guide</h2>
+          <div class="space-y-3">
+            <div class="flex justify-between p-3 rounded-lg bg-red-950/40"><b>Commissioner</b><span class="text-red-400">Red</span></div>
+            <div class="flex justify-between p-3 rounded-lg bg-amber-950/40"><b>Admin</b><span class="text-amber-400">Orange</span></div>
+            <div class="flex justify-between p-3 rounded-lg bg-blue-950/40"><b>Team Owner</b><span class="text-blue-400">Blue</span></div>
+            <div class="flex justify-between p-3 rounded-lg bg-slate-800"><b>Prospect</b><span class="text-slate-400">Gray</span></div>
+            <div class="flex justify-between p-3 rounded-lg bg-black"><b>Suspended</b><span class="text-slate-300">Black</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass rounded-xl p-5 mt-6">
+        <h2 class="font-bebas text-2xl mb-4">Notification Settings</h2>
+        <div id="notificationSettings" class="grid md:grid-cols-2 gap-3"></div>
+      </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section id="page-admin" class="page">
+      <div class="mb-6">
+        <div class="text-red-500 text-xs font-bold uppercase tracking-widest">Commissioner Control</div>
+        <h1 class="section-title text-4xl">Admin Portal</h1>
+      </div>
+
+      <div id="adminLock" class="max-w-md mx-auto glass rounded-xl p-6">
+        <div class="text-center">
+          <div class="w-14 h-14 bg-red-600/20 text-red-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="shield-check" class="w-7 h-7"></i>
+          </div>
+          <h2 class="font-bebas text-3xl">Admin Access</h2>
+          <p class="text-sm text-slate-500 mb-5">Enter the commissioner PIN.</p>
+          <input id="adminPin" type="password" class="input mb-3" placeholder="PIN">
+          <button class="btn btn-red w-full" onclick="unlockAdmin()">Unlock Admin</button>
+        </div>
+      </div>
+
+      <div id="adminPanel" class="hidden space-y-6">
+        <div class="glass rounded-xl p-5">
+          <h2 class="font-bebas text-2xl mb-4">League Settings</h2>
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <input id="settingSeason" class="input" placeholder="Season name">
+            <input id="settingWeek" type="number" min="1" max="18" class="input" placeholder="Current week">
+            <input id="settingCommissioner" class="input" placeholder="Commissioner name">
+            <input id="settingDiscord" class="input" placeholder="Discord URL">
+            <input id="settingYoutube" class="input" placeholder="YouTube URL">
+            <input id="settingCompanion" class="input" placeholder="Companion App URL">
+          </div>
+        </div>
+
+        <div class="glass rounded-xl p-5">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="font-bebas text-2xl">Manage Announcements</h2>
+          </div>
+          <form id="announcementForm" class="grid md:grid-cols-4 gap-2 mb-4">
+            <input id="announcementTitle" class="input" placeholder="Title" required>
+            <input id="announcementText" class="input md:col-span-2" placeholder="Announcement" required>
+            <button class="btn btn-red">Add Announcement</button>
+          </form>
+          <div id="adminAnnouncements"></div>
+        </div>
+
+        <div class="glass rounded-xl p-5">
+          <h2 class="font-bebas text-2xl mb-4">Manage Teams</h2>
+          <form id="teamForm" class="grid md:grid-cols-3 lg:grid-cols-6 gap-2 mb-4">
+            <input id="newTeamName" class="input lg:col-span-2" placeholder="Team Name" required>
+            <input id="newTeamOwner" class="input" placeholder="Owner" required>
+            <select id="newTeamConference" class="input">
+              <option>AFC</option><option>NFC</option>
+            </select>
+            <select id="newTeamDivision" class="input">
+              <option>North</option><option>South</option><option>East</option><option>West</option>
+            </select>
+            <button class="btn btn-red">Add Team</button>
+          </form>
+          <div class="scroll-table">
+            <table>
+              <thead><tr><th>Team</th><th>Owner</th><th>Conference</th><th>Division</th><th>Actions</th></tr></thead>
+              <tbody id="adminTeams"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="glass rounded-xl p-5">
+          <h2 class="font-bebas text-2xl mb-4">Manage Schedule</h2>
+          <form id="adminGameForm" class="grid md:grid-cols-2 lg:grid-cols-6 gap-2 mb-4">
+            <select id="adminGameWeek" class="input"></select>
+            <select id="adminAway" class="input"></select>
+            <select id="adminHome" class="input"></select>
+            <input id="adminDate" type="datetime-local" class="input">
+            <input id="adminAwayScore" type="number" min="0" class="input" placeholder="Away score">
+            <input id="adminHomeScore" type="number" min="0" class="input" placeholder="Home score">
+            <button class="btn btn-red lg:col-span-6">Add / Update Game</button>
+          </form>
+          <div id="adminScheduleList" class="space-y-2"></div>
+        </div>
+
+        <div class="glass rounded-xl p-5">
+          <h2 class="font-bebas text-2xl mb-4">Discipline Log</h2>
+          <form id="disciplineForm" class="grid md:grid-cols-2 lg:grid-cols-5 gap-2 mb-4">
+            <select id="disciplineTeam" class="input"></select>
+            <input id="disciplineReason" class="input" placeholder="Reason" required>
+            <input id="disciplineAmount" type="number" min="0" class="input" placeholder="Fine amount">
+            <select id="disciplineType" class="input">
+              <option>Fine</option><option>Suspension</option><option>Warning</option>
+            </select>
+            <button class="btn btn-red">Add Discipline</button>
+          </form>
+          <div id="disciplineLog" class="space-y-2"></div>
+        </div>
+
+        <button class="btn btn-gold w-full py-4 text-lg" onclick="saveAllSettings()">
+          <i data-lucide="save"></i> Save All Settings
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script>
+    /* =========================================================
+       RMNFL LEAGUE PLATFORM
+       Standalone / localStorage powered
+       ========================================================= */
+
+    const STORAGE_KEY = "rNFL_platform_v1";
+    const ADMIN_PIN = "RMNFL2024";
+
+    const NFL_TEAMS = [
+      ["Arizona Cardinals","NFC","West"],["Atlanta Falcons","NFC","South"],
+      ["Baltimore Ravens","AFC","North"],["Buffalo Bills","AFC","East"],
+      ["Carolina Panthers","NFC","South"],["Chicago Bears","NFC","North"],
+      ["Cincinnati Bengals","AFC","North"],["Cleveland Browns","AFC","North"],
+      ["Dallas Cowboys","NFC","East"],["Denver Broncos","AFC","West"],
+      ["Detroit Lions","NFC","North"],["Green Bay Packers","NFC","North"],
+      ["Houston Texans","AFC","South"],["Indianapolis Colts","AFC","South"],
+      ["Jacksonville Jaguars","AFC","South"],["Kansas City Chiefs","AFC","West"],
+      ["Las Vegas Raiders","AFC","West"],["Los Angeles Chargers","AFC","West"],
+      ["Los Angeles Rams","NFC","West"],["Miami Dolphins","AFC","East"],
+      ["Minnesota Vikings","NFC","North"],["New England Patriots","AFC","East"],
+      ["New Orleans Saints","NFC","South"],["New York Giants","NFC","East"],
+      ["New York Jets","AFC","East"],["Philadelphia Eagles","NFC","East"],
+      ["Pittsburgh Steelers","AFC","North"],["San Francisco 49ers","NFC","West"],
+      ["Seattle Seahawks","NFC","West"],["Tampa Bay Buccaneers","NFC","South"],
+      ["Tennessee Titans","AFC","South"],["Washington Commanders","NFC","East"]
+    ];
+
+    const OWNERS = [
+      "Marcus Reed","Darius Johnson","Chris Williams","Jordan Blake",
+      "Malik Thompson","Zachary Carter","Andre Lewis","Devon Harris",
+      "Isaiah Brooks","Caleb Morgan","Trevor Scott","Jalen Mitchell",
+      "Cameron Davis","Ryan Foster","DeAndre Wilson","Tyler Green"
+    ];
+
+    const FIRST_NAMES = [
+      "Jordan","Marcus","Darius","Malik","DeAndre","Chris","Jalen","Cameron",
+      "Isaiah","Tyler","Caleb","Trevor","Anthony","Jayden","Damian","Micah",
+      "Xavier","Brandon","Mason","Ryan"
+    ];
+
+    const LAST_NAMES = [
+      "Williams","Johnson","Smith","Brown","Davis","Miller","Wilson","Moore",
+      "Taylor","Anderson","Jackson","Thomas","Harris","Martin","Thompson","White",
+      "Young","Walker","Allen","King"
+    ];
+
+    const POSITIONS = [
+      ["QB",3],["RB",5],["WR",10],["TE",4],["OL",11],
+      ["DL",7],["LB",6],["CB",5],["S",4],["K",1],["P",1]
+    ];
+
+    let db = loadDB();
+    let currentPage = "home";
+    let adminUnlocked = false;
+    let loggedOwner = null;
+    let standingSort = { key:"W", dir:"desc" };
+    let selectedScheduleWeek = db.settings.currentWeek || 1;
+
+    function defaultDB() {
+      const teams = NFL_TEAMS.map((t,i) => ({
+        id: "team-" + (i+1),
+        name:t[0],
+        owner:OWNERS[i % OWNERS.length],
+        conference:t[1],
+        division:t[2],
+        password:"rNFL" + String(i+1).padStart(2,"0"),
+        roster:generateRoster(i)
+      }));
+
+      const standings = teams.map((team,i) => {
+        const w = Math.max(0, Math.floor(9 - i * .18) + (i % 3));
+        const l = Math.max(0, 18 - w);
+        return {
+          teamId:team.id, W:w, L:l, T:0,
+          PF:Math.floor(220 + i * 11),
+          PA:Math.floor(190 + i * 9),
+          streak:(i % 4 === 0 ? "W" : "L") + (1 + i % 4)
+        };
+      });
+
+      return {
+        settings:{
+          season:"Season 2026",
+          currentWeek:1,
+          commissioner:"RMNFL Commissioner",
+          discordUrl:"https://discord.gg/",
+          youtubeUrl:"",
+          companionUrl:"",
+          lastSynced:null
+        },
+        teams,
+        standings,
+        announcements:[
+          {id:1,title:"Welcome to RMNFL Season 2026",text:"The new league season is officially underway. Owners should review the rules and scheduling requirements.",date:new Date().toLocaleDateString()},
+          {id:2,title:"Scheduling Reminder",text:"All games must be scheduled within 48 hours and played within 72 hours.",date:new Date().toLocaleDateString()},
+          {id:3,title:"Madden Sync",text:"Sync league results through the Madden Companion App after every completed game.",date:new Date().toLocaleDateString()}
+        ],
+        tradeBlock:[],
+        games:generateSchedule(teams),
+        syncLog:[],
+        discipline:[],
+        notifications:{
+          scores:true,announcements:true,trades:true,scheduling:true,discipline:true,media:false
+        },
+        streams:[
+          {title:"RMNFL Weekly Show",date:"Wednesday — 8:00 PM"},
+          {title:"Weekend Game Window",date:"Saturday — 6:00 PM"},
+          {title:"Sunday Night Spotlight",date:"Sunday — 8:30 PM"}
+        ],
+        highlights:[
+          {title:"Week 1 Opening Night",desc:"Season 2026 kickoff highlights"},
+          {title:"Owner Spotlight",desc:"Meet this season's competitors"},
+          {title:"Top Plays",desc:"Best plays from around the league"}
+        ]
+      };
+    }
+
+    function generateRoster(teamIndex) {
+      const roster = [];
+      let num = 1;
+      let playerIndex = teamIndex * 4;
+
+      POSITIONS.forEach(([pos,count]) => {
+        for(let i=0;i<count;i++) {
+          const first = FIRST_NAMES[(playerIndex+i)%FIRST_NAMES.length];
+          const last = LAST_NAMES[(teamIndex+i*3+playerIndex)%LAST_NAMES.length];
+          let ovr = Math.min(99, 72 + ((teamIndex*7 + i*3 + playerIndex)%25));
+          let age = 21 + ((teamIndex+i)%13);
+          let speed = pos==="OL" ? 65+((i+teamIndex)%15) :
+                      pos==="DL" ? 68+((i+teamIndex)%16) :
+                      78+((i*3+teamIndex)%20);
+          roster.push({
+            number:num++, name:first+" "+last, position:pos,
+            ovr, age, speed
+          });
+          playerIndex++;
+        }
+      });
+      return roster.slice(0,53);
+    }
+
+    function generateSchedule(teams) {
+      const games = [];
+      let id = 1;
+
+      for(let week=1; week<=18; week++) {
+        for(let i=0;i<16;i++) {
+          const away = teams[(i + week - 1) % 32];
+          const home = teams[(i + 16 + week - 1) % 32];
+
+          const date = new Date(2026, 7, 15 + ((week-1)*4) + Math.floor(i/4));
+          date.setHours(17 + (i%4), 0, 0, 0);
+
+          let final = week < 1;
+
+          games.push({
+            id:id++,
+            week,
+            awayId:away.id,
+            homeId:home.id,
+            date:date.toISOString(),
+            status:final ? "Final" : "Scheduled",
+            awayScore:final ? 20+(i%17) : null,
+            homeScore:final ? 14+(i%13) : null
+          });
+        }
+      }
+      return games;
+    }
+
+    function loadDB() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if(saved) {
+          const parsed = JSON.parse(saved);
+          return parsed;
+        }
+      } catch(e) {}
+      const fresh = defaultDB();
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(fresh));
+      return fresh;
+    }
+
+    function saveDB(message="Saved successfully.") {
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
+      toast(message);
+      renderAll();
+    }
+
+    function toast(message,type="success") {
+      const box = document.createElement("div");
+      box.className = "toast";
+      box.style.borderLeftColor = type === "error" ? "#ef4444" : type === "gold" ? "#f59e0b" : "#22c55e";
+      box.innerHTML = `
+        <div class="flex gap-3 items-center">
+          <i data-lucide="${type === "error" ? "circle-alert" : "check-circle"}" class="w-5 h-5"></i>
+          <span class="text-sm">${escapeHtml(message)}</span>
+        </div>`;
+      document.getElementById("toastContainer").appendChild(box);
+      lucide.createIcons();
+      setTimeout(()=>box.remove(),3200);
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replaceAll("&","&amp;").replaceAll("<","&lt;")
+        .replaceAll(">","&gt;").replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function teamById(id) {
+      return db.teams.find(t=>t.id===id);
+    }
+
+    function teamName(id) {
+      return teamById(id)?.name || "Unknown Team";
+    }
+
+    function initials(name) {
+      return name.split(" ").map(x=>x[0]).join("").slice(0,3).toUpperCase();
+    }
+
+    function showPage(page) {
+      currentPage = page;
+      document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+      document.getElementById("page-"+page)?.classList.add("active");
+
+      document.querySelectorAll(".nav-btn").forEach(btn=>{
+        btn.classList.toggle("active",btn.dataset.page===page);
+        if(btn.dataset.page===page) {
+          btn.style.background="#DC2626";
+          btn.style.color="#fff";
+        } else {
+          btn.style.background="transparent";
+          btn.style.color="#cbd5e1";
+        }
+      });
+
+      window.scrollTo({top:0,behavior:"smooth"});
+      renderAll();
+    }
+
+    function renderAll() {
+      renderTicker();
+      renderHome();
+      renderStandings();
+      renderWeekSelector();
+      renderSchedule();
+      renderScoreGames();
+      renderRosterSelect();
+      renderRoster();
+      renderRules();
+      renderTradeBlock();
+      renderMedia();
+      renderOwnerPortal();
+      renderMadden();
+      renderDiscord();
+      renderAdmin();
+      lucide.createIcons();
+    }
+
+    function renderTicker() {
+      const announcements = db.announcements.map(a=>`${a.title}: ${a.text}`);
+      document.getElementById("tickerText").textContent =
+        (announcements.length ? announcements.join("   •   ") : "Welcome to RMNFL Season 2026") + "   •   ";
+    }
+
+    function renderHome() {
+      document.getElementById("seasonBanner").textContent = db.settings.season;
+
+      const finalGames = db.games.filter(g=>g.status==="Final");
+      const activeTrades = db.tradeBlock.length;
+
+      document.getElementById("homeStats").innerHTML = [
+        ["Total Teams",db.teams.length,"users"],
+        ["Current Week",db.settings.currentWeek,"calendar-days"],
+        ["Games Played",finalGames.length,"check-circle"],
+        ["Active Trades",activeTrades,"repeat-2"]
+      ].map(x=>`
+        <div class="glass rounded-xl p-5">
+          <div class="flex justify-between">
+            <div><div class="text-xs text-slate-500 uppercase tracking-wider">${x[0]}</div><div class="stat-number mt-2">${x[1]}</div></div>
+            <div class="text-red-500"><i data-lucide="${x[2]}"></i></div>
+          </div>
+        </div>`).join("");
+
+      const recent = [...finalGames].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
+      document.getElementById("recentScores").innerHTML = recent.length ? recent.map(gameRow).join("") :
+        emptyState("No completed games yet.","check-circle");
+
+      const upcoming = db.games.filter(g=>g.status!=="Final").sort((a,b)=>new Date(a.date)-new Date(b.date)).slice(0,5);
+      document.getElementById("upcomingGames").innerHTML = upcoming.length ? upcoming.map(upcomingRow).join("") :
+        emptyState("No upcoming games.","calendar");
+
+      document.getElementById("announcementsHome").innerHTML = db.announcements.length ?
+        db.announcements.slice().reverse().map(a=>`
+          <div class="p-4 rounded-lg bg-slate-900/70 border border-slate-800">
+            <div class="flex justify-between gap-2">
+              <b>${escapeHtml(a.title)}</b>
+              <span class="text-[10px] text-slate-500">${escapeHtml(a.date)}</span>
+            </div>
+            <p class="text-sm text-slate-400 mt-2">${escapeHtml(a.text)}</p>
+          </div>`).join("") :
+        emptyState("No announcements.","megaphone");
+    }
+
+    function gameRow(g) {
+      const away = teamById(g.awayId), home = teamById(g.homeId);
+      return `
+        <div class="p-3 border-b border-slate-800 last:border-0 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="team-logo">${initials(away.name)}</div>
+            <div class="min-w-0">
+              <div class="font-semibold truncate">${escapeHtml(away.name)}</div>
+              <div class="text-xs text-slate-500">vs ${escapeHtml(home.name)} · W${g.week}</div>
+            </div>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="font-bold">${g.awayScore} - ${g.homeScore}</div>
+            <span class="badge bg-green-900/50 text-green-400">FINAL</span>
+          </div>
+        </div>`;
+    }
+
+    function upcomingRow(g) {
+      const away = teamById(g.awayId), home = teamById(g.homeId);
+      return `
+        <div class="p-3 border-b border-slate-800 last:border-0 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="team-logo">${initials(away.name)}</div>
+            <div>
+              <div class="font-semibold">${escapeHtml(away.name)} <span class="text-slate-600">at</span> ${escapeHtml(home.name)}</div>
+              <div class="text-xs text-slate-500">Week ${g.week} · ${formatDate(g.date)}</div>
+            </div>
+          </div>
+          <span class="badge bg-slate-800 text-slate-400">SCHEDULED</span>
+        </div>`;
+    }
+
+    function emptyState(text,icon="info") {
+      return `<div class="py-10 text-center text-slate-500"><i data-lucide="${icon}" class="w-8 h-8 mx-auto mb-2"></i><p>${escapeHtml(text)}</p></div>`;
+    }
+
+    function renderStandings() {
+      let rows = db.teams.map(team=>{
+        const s = db.standings.find(x=>x.teamId===team.id) || {W:0,L:0,T:0,PF:0,PA:0,streak:"-"};
+        return {...team,...s};
+      });
+
+      rows.sort((a,b)=>{
+        let av=a[standingSort.key], bv=b[standingSort.key];
+        if(typeof av==="string") return standingSort.dir==="asc" ? av.localeCompare(bv) : bv.localeCompare(av);
+        return standingSort.dir==="asc" ? av-bv : bv-av;
+      });
+
+      document.getElementById("afcTable").innerHTML = standingsTable(rows.filter(x=>x.conference==="AFC"));
+      document.getElementById("nfcTable").innerHTML = standingsTable(rows.filter(x=>x.conference==="NFC"));
+    }
+
+    function standingsTable(rows) {
+      return `
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th onclick="changeSort('name')" class="cursor-pointer">Team ↕</th>
+            <th>Owner</th>
+            <th onclick="changeSort('W')" class="cursor-pointer">W ↕</th>
+            <th onclick="changeSort('L')" class="cursor-pointer">L ↕</th>
+            <th>T</th>
+            <th onclick="changeSort('PF')" class="cursor-pointer">PF ↕</th>
+            <th onclick="changeSort('PA')" class="cursor-pointer">PA ↕</th>
+            <th>Streak</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows.map((x,i)=>`
+            <tr>
+              <td class="font-bold text-slate-500">${i+1}</td>
+              <td><div class="flex items-center gap-2"><span class="team-logo">${initials(x.name)}</span><span class="font-semibold whitespace-nowrap">${escapeHtml(x.name)}</span></div></td>
+              <td class="text-slate-400 whitespace-nowrap">${escapeHtml(x.owner)}</td>
+              <td class="font-bold">${x.W}</td>
+              <td>${x.L}</td>
+              <td>${x.T}</td>
+              <td>${x.PF}</td>
+              <td>${x.PA}</td>
+              <td><span class="badge ${String(x.streak).startsWith("W")?"bg-green-900/40 text-green-400":"bg-red-900/40 text-red-400"}">${x.streak}</span></td>
+            </tr>`).join("")}
+        </tbody>`;
+    }
+
+    function changeSort(key) {
+      if(standingSort.key===key) standingSort.dir=standingSort.dir==="asc"?"desc":"asc";
+      else { standingSort.key=key; standingSort.dir="asc"; }
+      renderStandings();
+    }
+
+    function sortStandings() {
+      standingSort={key:"W",dir:"desc"};
+      renderStandings();
+    }
+
+    function renderWeekSelector() {
+      const weeks = Array.from({length:18},(_,i)=>i+1);
+      document.getElementById("weekSelector").innerHTML =
+        weeks.map(w=>`<button class="btn ${selectedScheduleWeek===w?"btn-red":"btn-dark"} text-xs" onclick="selectWeek(${w})">W${w}</button>`).join("") +
+        `<button class="btn ${selectedScheduleWeek==="playoffs"?"btn-gold":"btn-dark"} text-xs" onclick="selectWeek('playoffs')">Playoffs</button>`;
+
+      document.getElementById("scoreWeek").innerHTML = weeks.map(w=>
+        `<option value="${w}" ${db.settings.currentWeek===w?"selected":""}>Week ${w}</option>`
+      ).join("");
+    }
+
+    function selectWeek(week) {
+      selectedScheduleWeek=week;
+      renderSchedule();
+      renderWeekSelector();
+    }
+
+    function renderSchedule() {
+      const title = selectedScheduleWeek==="playoffs" ? "Playoffs" : "Week "+selectedScheduleWeek;
+      document.getElementById("scheduleTitle").textContent=title;
+
+      let games = selectedScheduleWeek==="playoffs" ? [] :
+        db.games.filter(g=>g.week===Number(selectedScheduleWeek));
+
+      document.getElementById("scheduleCount").textContent=games.length+" Games";
+
+      document.getElementById("scheduleGames").innerHTML = games.length ?
+        games.map(g=>{
+          const away=teamById(g.awayId), home=teamById(g.homeId);
+          return `
+            <div class="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div class="flex items-center gap-4">
+                <div class="text-xs text-slate-500 w-14">GAME<br>${g.id}</div>
+                <div class="text-right w-36 font-semibold">${escapeHtml(away.name)}</div>
+                <div class="font-bebas text-xl text-slate-600">@</div>
+                <div class="w-36 font-semibold">${escapeHtml(home.name)}</div>
+              </div>
+              <div class="flex items-center gap-4">
+                <div class="text-sm text-slate-500">${formatDate(g.date)}</div>
+                ${g.status==="Final"
+                  ? `<div class="font-bold">${g.awayScore} - ${g.homeScore}</div><span class="badge bg-green-900/40 text-green-400">FINAL</span>`
+                  : `<span class="badge bg-slate-800 text-slate-400">SCHEDULED</span>`}
+              </div>
+            </div>`;
+        }).join("") : emptyState("Playoff bracket has not been configured yet.","trophy");
+    }
+
+    function renderScoreGames() {
+      const week = Number(document.getElementById("scoreWeek")?.value || db.settings.currentWeek);
+      const games = db.games.filter(g=>g.week===week);
+
+      document.getElementById("scoreGames").innerHTML = games.map(g=>{
+        const away=teamById(g.awayId), home=teamById(g.homeId);
+        return `
+          <div class="glass rounded-xl p-5">
+            <div class="flex justify-between text-xs text-slate-500 mb-4">
+              <span>Game #${g.id}</span>
+              <span>${formatDate(g.date)}</span>
+            </div>
+            <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+              <div class="text-center">
+                <div class="team-logo mx-auto mb-2">${initials(away.name)}</div>
+                <div class="font-semibold text-sm">${escapeHtml(away.name)}</div>
+                <input id="away-${g.id}" type="number" min="0" value="${g.awayScore ?? ""}" class="input text-center mt-3" placeholder="Score">
+              </div>
+              <div class="font-bebas text-2xl text-slate-600">VS</div>
+              <div class="text-center">
+                <div class="team-logo mx-auto mb-2">${initials(home.name)}</div>
+                <div class="font-semibold text-sm">${escapeHtml(home.name)}</div>
+                <input id="home-${g.id}" type="number" min="0" value="${g.homeScore ?? ""}" class="input text-center mt-3" placeholder="Score">
+              </div>
+            </div>
+            <button class="btn btn-red w-full mt-4" onclick="submitScore(${g.id})">
+              <i data-lucide="check"></i> Submit Score
+            </button>
+          </div>`;
+      }).join("");
+
+      lucide.createIcons();
+    }
+
+    function submitScore(id) {
+      const g=db.games.find(x=>x.id===id);
+      const away=document.getElementById("away-"+id)?.value;
+      const home=document.getElementById("home-"+id)?.value;
+
+      if(away==="" || home==="" || Number(away)<0 || Number(home)<0) {
+        toast("Enter valid scores for both teams.","error");
+        return;
+      }
+
+      g.awayScore=Number(away);
+      g.homeScore=Number(home);
+      g.status="Final";
+
+      updateStandingsFromGame(g);
+      addSyncLog("Score Reported",1);
+      saveDB("Score submitted successfully.");
+    }
+
+    function updateStandingsFromGame(g) {
+      const away=db.standings.find(x=>x.teamId===g.awayId);
+      const home=db.standings.find(x=>x.teamId===g.homeId);
+      if(!away || !home) return;
+
+      // Recalculate all standings from final games to prevent double counting.
+      db.standings.forEach(s=>{
+        s.W=0;s.L=0;s.T=0;s.PF=0;s.PA=0;s.streak="-";
+      });
+
+      const byTeam={};
+      db.teams.forEach(t=>byTeam[t.id]=[]);
+
+      db.games.filter(x=>x.status==="Final").forEach(game=>{
+        const a=db.standings.find(x=>x.teamId===game.awayId);
+        const h=db.standings.find(x=>x.teamId===game.homeId);
+        a.PF += Number(game.awayScore||0); a.PA += Number(game.homeScore||0);
+        h.PF += Number(game.homeScore||0); h.PA += Number(game.awayScore||0);
+
+        if(game.awayScore>game.homeScore) { a.W++;h.L++;byTeam[a.teamId].push("W");byTeam[h.teamId].push("L"); }
+        else if(game.homeScore>game.awayScore) { h.W++;a.L++;byTeam[h.teamId].push("W");byTeam[a.teamId].push("L"); }
+        else { a.T++;h.T++;byTeam[a.teamId].push("T");byTeam[h.teamId].push("T"); }
+      });
+
+      db.standings.forEach(s=>{
+        const seq=byTeam[s.teamId]||[];
+        const last=seq.slice(-4);
+        s.streak=last.length ? last[0]+last.filter(x=>x===last[0]).length : "-";
+      });
+    }
+
+    function renderRosterSelect() {
+      const select=document.getElementById("rosterTeam");
+      const ownerSelect=document.getElementById("ownerTeamLogin");
+      const tradeTeam=document.getElementById("tradeTeam");
+
+      if(!select) return;
+
+      const current=select.value;
+      const options=db.teams.map(t=>`<option value="${t.id}">${escapeHtml(t.name)}</option>`).join("");
+
+      select.innerHTML=options;
+      if(current && db.teams.some(t=>t.id===current)) select.value=current;
+
+      if(ownerSelect) ownerSelect.innerHTML=options;
+      if(tradeTeam) tradeTeam.innerHTML=options;
+    }
+
+    function renderRoster() {
+      const select=document.getElementById("rosterTeam");
+      if(!select || !select.value) return;
+
+      const team=teamById(select.value);
+      if(!team) return;
+
+      document.getElementById("rosterTitle").textContent=team.name+" — 53-Man Roster";
+
+      const avg = Math.round(team.roster.reduce((a,p)=>a+p.ovr,0)/team.roster.length);
+      const fastest = Math.max(...team.roster.map(p=>p.speed));
+      const youngest = Math.min(...team.roster.map(p=>p.age));
+
+      document.getElementById("rosterSummary").innerHTML=[
+        ["Players",team.roster.length],
+        ["Avg OVR",avg],
+        ["Top OVR",Math.max(...team.roster.map(p=>p.ovr))],
+        ["Fastest",fastest],
+        ["Youngest",youngest]
+      ].map(x=>`<div class="glass rounded-lg p-4"><div class="text-xs text-slate-500">${x[0]}</div><div class="stat-number mt-1">${x[1]}</div></div>`).join("");
+
+      document.getElementById("rosterBody").innerHTML=team.roster.map(p=>`
+        <tr>
+          <td class="font-bold">${p.number}</td>
+          <td class="font-semibold">${escapeHtml(p.name)}</td>
+          <td><span class="badge bg-red-900/40 text-red-300">${p.position}</span></td>
+          <td class="font-bold">${p.ovr}</td>
+          <td>${p.age}</td>
+          <td>${p.speed}</td>
+          <td class="text-slate-400">${depthPosition(p.position)}</td>
+        </tr>`).join("");
+    }
+
+    function depthPosition(pos) {
+      const map={QB:"QB1",RB:"RB1/2",WR:"WR1/2/3",TE:"TE1/2",OL:"OL",DL:"DL",LB:"LB",CB:"CB",S:"S",K:"K",P:"P"};
+      return map[pos]||pos;
+    }
+
+    function renderRules() {
+      const rules=[
+        ["General Rules",[
+          "All owners are expected to compete fairly and maintain respectful communication.",
+          "League games must be played using the official RMNFL settings and approved Madden league.",
+          "Owners are responsible for checking Discord and the league platform for announcements.",
+          "Intentional disconnects, exploits and stat manipulation may result in discipline."
+        ]],
+        ["Trade Rules",[
+          "All trades are subject to a 48-hour review window.",
+          "Commissioner approval is required before a trade becomes official.",
+          "Trades must be posted through the league trade process with accurate player information.",
+          "Collusion, intentional roster dumping and trades designed to circumvent rules are prohibited."
+        ]],
+        ["Scheduling Rules",[
+          "Owners must make contact and schedule their next game within 48 hours.",
+          "Games should be completed within 72 hours of the applicable scheduling window.",
+          "If an opponent is unavailable, document the communication in Discord and contact an admin.",
+          "Repeated scheduling failures may result in a forfeit or discipline."
+        ]],
+        ["Discipline Policy",[
+          "Late game: $5,000 fine.",
+          "No-show: $10,000 fine.",
+          "Unsportsmanlike conduct: $25,000 fine.",
+          "Additional suspensions, forfeits or removal from the league may apply for repeated violations."
+        ]],
+        ["Playoff Rules",[
+          "Playoff qualification is determined by the official standings.",
+          "Tiebreakers may include head-to-head record, division record, point differential and conference record.",
+          "Playoff games must be played during the assigned playoff window.",
+          "Commissioner decisions on unresolved playoff disputes are final unless overturned by league administration."
+        ]],
+        ["Madden Sync Rules",[
+          "Owners must sync league data after every completed game.",
+          "The official Companion App league URL must be used.",
+          "Manual score reporting is available when synchronization fails.",
+          "Owners should report discrepancies immediately rather than attempting to alter statistics."
+        ]]
+      ];
+
+      document.getElementById("rulesContent").innerHTML=rules.map((r,i)=>`
+        <details class="glass rounded-xl p-5" ${i===0?"open":""}>
+          <summary class="cursor-pointer font-bebas text-2xl flex justify-between items-center">
+            ${r[0]} <span class="text-red-500">+</span>
+          </summary>
+          <div class="mt-4 space-y-3">
+            ${r[1].map((x,j)=>`<div class="flex gap-3 text-slate-300"><span class="text-red-500 font-bold">${j+1}.</span><span>${x}</span></div>`).join("")}
+          </div>
+        </details>`).join("");
+    }
+
+    function renderTradeBlock() {
+      document.getElementById("tradeEntries").innerHTML=db.tradeBlock.length ?
+        db.tradeBlock.slice().reverse().map((x,index)=>`
+          <div class="glass rounded-xl p-5 relative">
+            <button class="absolute top-4 right-4 text-slate-600 hover:text-red-400" onclick="deleteTrade(${db.tradeBlock.length-1-index})"><i data-lucide="x" class="w-4"></i></button>
+            <span class="badge bg-red-900/40 text-red-300">TRADE BLOCK</span>
+            <h3 class="font-bebas text-2xl mt-3">${escapeHtml(x.player)}</h3>
+            <div class="text-sm text-slate-400">${escapeHtml(x.position)} · OVR ${x.ovr}</div>
+            <div class="text-xs text-slate-500 mt-2">${escapeHtml(x.team)} · ${escapeHtml(x.owner)}</div>
+            <p class="text-sm text-slate-300 mt-4">${escapeHtml(x.notes)}</p>
+          </div>`).join("") :
+        emptyState("No players currently on the trade block.","repeat-2");
+    }
+
+    document.getElementById("tradeForm").addEventListener("submit",e=>{
+      e.preventDefault();
+
+      const owner=document.getElementById("tradeOwner").value.trim();
+      const team=teamById(document.getElementById("tradeTeam").value)?.name;
+      const player=document.getElementById("tradePlayer").value.trim();
+      const position=document.getElementById("tradePos").value.trim();
+      const ovr=Number(document.getElementById("tradeOvr").value);
+      const notes=document.getElementById("tradeNotes").value.trim();
+
+      if(!owner || !team || !player || !position || !notes || ovr<0 || ovr>99) {
+        toast("Complete every trade block field.","error"); return;
+      }
+
+      db.tradeBlock.push({owner,team,player,position,ovr,notes,date:new Date().toISOString()});
+      e.target.reset();
+      saveDB("Player added to trade block.");
+    });
+
+    function deleteTrade(index) {
+      if(!confirm("Remove this player from the trade block?")) return;
+      db.tradeBlock.splice(index,1);
+      saveDB("Trade block entry removed.");
+    }
+
+    function renderMedia() {
+      document.getElementById("youtubeUrl").value=db.settings.youtubeUrl||"";
+
+      const url=db.settings.youtubeUrl||"";
+      const embed=document.getElementById("mediaEmbed");
+
+      if(url) {
+        let videoId="";
+        const match=url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&?/]+)/);
+        if(match) videoId=match[1];
+
+        if(videoId) {
+          embed.innerHTML=`<iframe class="w-full h-full rounded-xl" src="https://www.youtube.com/embed/${encodeURIComponent(videoId)}" title="RMNFL Broadcast" allowfullscreen></iframe>`;
+        } else {
+          embed.innerHTML=`<div class="text-center"><i data-lucide="radio" class="w-12 h-12 mx-auto mb-3"></i><p>RMNFL broadcast channel configured.</p><button class="btn btn-red mt-3" onclick="openUrl('youtubeUrl')">Open Channel</button></div>`;
+        }
+      } else {
+        embed.innerHTML=`<div class="text-center"><i data-lucide="play-circle" class="w-14 h-14 mx-auto mb-3"></i><p>Add the league YouTube URL to configure broadcasts.</p></div>`;
+      }
+
+      document.getElementById("streamSchedule").innerHTML=db.streams.map(s=>`
+        <div class="p-3 bg-slate-900 rounded-lg">
+          <b>${escapeHtml(s.title)}</b>
+          <div class="text-xs text-slate-500 mt-1">${escapeHtml(s.date)}</div>
+        </div>`).join("");
+
+      document.getElementById("highlights").innerHTML=db.highlights.map(h=>`
+        <div class="rounded-xl bg-slate-900 border border-slate-800 overflow-hidden">
+          <div class="aspect-video bg-gradient-to-br from-red-950 to-slate-950 flex items-center justify-center">
+            <i data-lucide="play" class="text-red-500 w-10 h-10"></i>
+          </div>
+          <div class="p-4"><b>${escapeHtml(h.title)}</b><p class="text-xs text-slate-500 mt-1">${escapeHtml(h.desc)}</p></div>
+        </div>`).join("");
+    }
+
+    function saveMediaUrl() {
+      const value=document.getElementById("youtubeUrl").value.trim();
+      if(value && !isValidUrl(value)) { toast("Enter a valid YouTube URL.","error"); return; }
+      db.settings.youtubeUrl=value;
+      saveDB("YouTube URL saved.");
+    }
+
+    function renderOwnerPortal() {
+      const login=document.getElementById("ownerLogin");
+      const dash=document.getElementById("ownerDashboard");
+
+      if(!loggedOwner) {
+        login.classList.remove("hidden");
+        dash.classList.add("hidden");
+        return;
+      }
+
+      login.classList.add("hidden");
+      dash.classList.remove("hidden");
+
+      const team=teamById(loggedOwner);
+      if(!team) { loggedOwner=null; return; }
+
+      const standings=db.standings.find(s=>s.teamId===team.id);
+      const schedule=db.games.filter(g=>g.homeId===team.id||g.awayId===team.id).slice(0,8);
+      const trades=db.tradeBlock.filter(x=>x.team===team.name);
+
+      dash.innerHTML=`
+        <div class="flex flex-wrap justify-between items-center mb-5">
+          <div>
+            <div class="text-xs text-red-500 font-bold uppercase tracking-widest">Logged In</div>
+            <h2 class="font-bebas text-4xl">${escapeHtml(team.name)}</h2>
+            <p class="text-slate-500">${escapeHtml(team.owner)}</p>
+          </div>
+          <button class="btn btn-dark" onclick="logoutOwner()">Log Out</button>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
+          ${[
+            ["W",standings?.W||0],["L",standings?.L||0],["PF",standings?.PF||0],
+            ["PA",standings?.PA||0],["Roster",team.roster.length]
+          ].map(x=>`<div class="glass rounded-xl p-4"><div class="text-xs text-slate-500">${x[0]}</div><div class="stat-number mt-1">${x[1]}</div></div>`).join("")}
+        </div>
+
+        <div class="grid xl:grid-cols-2 gap-6">
+          <div class="glass rounded-xl p-5">
+            <h3 class="font-bebas text-2xl mb-4">My Schedule</h3>
+            ${schedule.map(g=>`
+              <div class="p-3 border-b border-slate-800 flex justify-between gap-2">
+                <div>
+                  <b>W${g.week} · ${g.homeId===team.id?"vs":"at"} ${escapeHtml(teamName(g.homeId===team.id?g.awayId:g.homeId))}</b>
+                  <div class="text-xs text-slate-500">${formatDate(g.date)}</div>
+                </div>
+                <span class="badge ${g.status==="Final"?"bg-green-900/40 text-green-400":"bg-slate-800 text-slate-400"}">${g.status}</span>
+              </div>`).join("")}
+          </div>
+
+          <div class="glass rounded-xl p-5">
+            <h3 class="font-bebas text-2xl mb-4">My Trade Requests</h3>
+            ${trades.length ? trades.map(x=>`
+              <div class="p-3 rounded-lg bg-slate-900 mb-2"><b>${escapeHtml(x.player)}</b><div class="text-xs text-slate-500">${escapeHtml(x.notes)}</div></div>`).join("") : emptyState("No active trade requests.","repeat-2")}
+          </div>
+
+          <div class="glass rounded-xl p-5 xl:col-span-2">
+            <h3 class="font-bebas text-2xl mb-4">My Roster</h3>
+            <div class="scroll-table">
+              <table><thead><tr><th>#</th><th>Name</th><th>POS</th><th>OVR</th><th>AGE</th><th>SPD</th></tr></thead>
+              <tbody>${team.roster.map(p=>`<tr><td>${p.number}</td><td>${escapeHtml(p.name)}</td><td>${p.position}</td><td>${p.ovr}</td><td>${p.age}</td><td>${p.speed}</td></tr>`).join("")}</tbody></table>
+            </div>
+          </div>
+
+          <div class="glass rounded-xl p-5 xl:col-span-2">
+            <h3 class="font-bebas text-2xl mb-4">Submit Score</h3>
+            <p class="text-sm text-slate-500 mb-4">Use the league score center to submit results for your current games.</p>
+            <button class="btn btn-red" onclick="showPage('scores')"><i data-lucide="square-pen"></i> Score Center</button>
+          </div>
+        </div>`;
+    }
+
+    document.getElementById("ownerLoginForm").addEventListener("submit",e=>{
+      e.preventDefault();
+      const team=teamById(document.getElementById("ownerTeamLogin").value);
+      const pass=document.getElementById("ownerPassword").value;
+
+      if(!team || pass!==team.password) {
+        toast("Invalid team or password.","error"); return;
+      }
+
+      loggedOwner=team.id;
+      toast("Owner login successful.");
+      renderOwnerPortal();
+    });
+
+    function logoutOwner() {
+      loggedOwner=null;
+      document.getElementById("ownerPassword").value="";
+      toast("Logged out.");
+      renderOwnerPortal();
+    }
+
+    function renderMadden() {
+      document.getElementById("companionUrl").value=db.settings.companionUrl||"";
+      document.getElementById("lastSynced").textContent=db.settings.lastSynced ? formatDate(db.settings.lastSynced) : "Never";
+      document.getElementById("gamesSynced").textContent=db.syncLog.reduce((a,x)=>a+Number(x.games||0),0);
+      document.getElementById("syncStatus").textContent=db.settings.lastSynced?"SYNCED":"PENDING";
+      document.getElementById("syncStatus").className="mt-2 badge "+(db.settings.lastSynced?"bg-green-900 text-green-300":"bg-amber-900 text-amber-300");
+
+      document.getElementById("syncLog").innerHTML=db.syncLog.length ?
+        db.syncLog.slice().reverse().map(x=>`
+          <tr><td>${formatDate(x.timestamp)}</td><td>${escapeHtml(x.type)}</td><td><span class="badge bg-green-900/40 text-green-400">${x.status}</span></td><td>${x.games}</td></tr>`).join("") :
+        `<tr><td colspan="4" class="text-center text-slate-500 py-8">No sync events yet.</td></tr>`;
+
+      document.getElementById("manualWeek").innerHTML=Array.from({length:18},(_,i)=>`<option value="${i+1}">Week ${i+1}</option>`).join("");
+      updateManualGames();
+    }
+
+    document.getElementById("manualWeek").addEventListener("change",updateManualGames);
+
+    function updateManualGames() {
+      const week=Number(document.getElementById("manualWeek")?.value||1);
+      const games=db.games.filter(g=>g.week===week);
+      document.getElementById("manualGame").innerHTML=games.map(g=>
+        `<option value="${g.id}">${escapeHtml(teamName(g.awayId))} @ ${escapeHtml(teamName(g.homeId))}</option>`
+      ).join("");
+    }
+
+    document.getElementById("manualScoreForm").addEventListener("submit",e=>{
+      e.preventDefault();
+
+      const game=db.games.find(g=>g.id===Number(document.getElementById("manualGame").value));
+      const home=Number(document.getElementById("manualHomeScore").value);
+      const away=Number(document.getElementById("manualAwayScore").value);
+
+      if(!game || home<0 || away<0 || !Number.isFinite(home) || !Number.isFinite(away)) {
+        toast("Enter a valid game and scores.","error"); return;
+      }
+
+      game.homeScore=home;
+      game.awayScore=away;
+      game.status="Final";
+      updateStandingsFromGame(game);
+      db.settings.lastSynced=new Date().toISOString();
+      addSyncLog("Manual Score",1);
+      saveDB("Manual score synced.");
+    });
+
+    function saveCompanionUrl() {
+      const value=document.getElementById("companionUrl").value.trim();
+      if(value && !isValidUrl(value)) { toast("Enter a valid Companion App URL.","error"); return; }
+      db.settings.companionUrl=value;
+      saveDB("Companion App URL saved.");
+    }
+
+    function addSyncLog(type,games) {
+      db.syncLog.push({
+        timestamp:new Date().toISOString(),
+        type,status:"SYNCED",games
+      });
+      db.settings.lastSynced=new Date().toISOString();
+    }
+
+    function renderDiscord() {
+      document.getElementById("discordUrl").value=db.settings.discordUrl||"";
+
+      const settings=[
+        ["scores","Game scores and finals"],
+        ["announcements","League announcements"],
+        ["trades","Trade block activity"],
+        ["scheduling","Scheduling reminders"],
+        ["discipline","Discipline notices"],
+        ["media","Media and broadcast posts"]
+      ];
+
+      document.getElementById("notificationSettings").innerHTML=settings.map(([key,label])=>`
+        <label class="flex items-center justify-between gap-3 p-4 rounded-lg bg-slate-900 cursor-pointer">
+          <span>${label}</span>
+          <input type="checkbox" ${db.notifications[key]?"checked":""} onchange="toggleNotification('${key}',this.checked)" class="accent-red-600 w-5 h-5">
+        </label>`).join("");
+    }
+
+    function toggleNotification(key,value) {
+      db.notifications[key]=value;
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
+      toast("Notification setting updated.");
+    }
+
+    function saveDiscordUrl() {
+      const value=document.getElementById("discordUrl").value.trim();
+      if(value && !isValidUrl(value)) { toast("Enter a valid Discord URL.","error"); return; }
+      db.settings.discordUrl=value;
+      saveDB("Discord URL saved.");
+    }
+
+    function renderAdmin() {
+      document.querySelectorAll(".admin-only").forEach(el=>{
+        el.classList.toggle("hidden-admin",!adminUnlocked);
+      });
+
+      if(!adminUnlocked) return;
+
+      document.getElementById("settingSeason").value=db.settings.season;
+      document.getElementById("settingWeek").value=db.settings.currentWeek;
+      document.getElementById("settingCommissioner").value=db.settings.commissioner;
+      document.getElementById("settingDiscord").value=db.settings.discordUrl;
+      document.getElementById("settingYoutube").value=db.settings.youtubeUrl;
+      document.getElementById("settingCompanion").value=db.settings.companionUrl;
+
+      document.getElementById("adminAnnouncements").innerHTML=db.announcements.map(a=>`
+        <div class="p-3 rounded-lg bg-slate-900 mb-2 flex justify-between gap-3">
+          <div><b>${escapeHtml(a.title)}</b><p class="text-xs text-slate-500">${escapeHtml(a.text)}</p></div>
+          <button class="text-red-400" onclick="deleteAnnouncement(${a.id})"><i data-lucide="trash-2"></i></button>
+        </div>`).join("");
+
+      document.getElementById("adminTeams").innerHTML=db.teams.map(t=>`
+        <tr>
+          <td class="font-semibold">${escapeHtml(t.name)}</td>
+          <td>${escapeHtml(t.owner)}</td>
+          <td>${t.conference}</td>
+          <td>${t.division}</td>
+          <td class="flex gap-2">
+            <button class="btn btn-dark text-xs" onclick="editTeam('${t.id}')">Edit</button>
+            <button class="btn btn-danger text-xs" onclick="deleteTeam('${t.id}')">Delete</button>
+          </td>
+        </tr>`).join("");
+
+      const teamOptions=db.teams.map(t=>`<option value="${t.id}">${escapeHtml(t.name)}</option>`).join("");
+      document.getElementById("adminAway").innerHTML=teamOptions;
+      document.getElementById("adminHome").innerHTML=teamOptions;
+      document.getElementById("disciplineTeam").innerHTML=teamOptions;
+      document.getElementById("adminGameWeek").innerHTML=Array.from({length:18},(_,i)=>`<option>${i+1}</option>`).join("");
+
+      document.getElementById("adminScheduleList").innerHTML=db.games.slice(0,80).map(g=>`
+        <div class="p-3 rounded-lg bg-slate-900 flex flex-wrap items-center justify-between gap-2">
+          <div><b>W${g.week}: ${escapeHtml(teamName(g.awayId))} @ ${escapeHtml(teamName(g.homeId))}</b><div class="text-xs text-slate-500">${formatDate(g.date)}</div></div>
+          <div class="flex items-center gap-2">
+            <span>${g.status==="Final"?g.awayScore+" - "+g.homeScore:"—"}</span>
+            <span class="badge ${g.status==="Final"?"bg-green-900/40 text-green-400":"bg-slate-800 text-slate-400"}">${g.status}</span>
+          </div>
+        </div>`).join("");
+
+      document.getElementById("disciplineLog").innerHTML=db.discipline.length ? db.discipline.slice().reverse().map(x=>`
+        <div class="p-3 bg-slate-900 rounded-lg flex flex-wrap justify-between gap-3">
+          <div><b>${escapeHtml(teamName(x.teamId))}</b><div class="text-xs text-slate-500">${escapeHtml(x.reason)}</div></div>
+          <div class="text-right"><span class="badge bg-red-900/40 text-red-400">${escapeHtml(x.type)}</span><div class="font-bold mt-1">$${Number(x.amount||0).toLocaleString()}</div></div>
+        </div>`).join("") : emptyState("No discipline records.","shield");
+    }
+
+    function unlockAdmin() {
+      if(document.getElementById("adminPin").value===ADMIN_PIN) {
+        adminUnlocked=true;
+        document.getElementById("adminLock").classList.add("hidden");
+        document.getElementById("adminPanel").classList.remove("hidden");
+        toast("Admin access granted.");
+        renderAdmin();
+      } else {
+        toast("Incorrect admin PIN.","error");
+      }
+    }
+
+    document.getElementById("announcementForm").addEventListener("submit",e=>{
+      e.preventDefault();
+      if(!adminUnlocked) return;
+
+      const title=document.getElementById("announcementTitle").value.trim();
+      const text=document.getElementById("announcementText").value.trim();
+
+      if(!title||!text) { toast("Complete announcement fields.","error"); return; }
+
+      db.announcements.push({
+        id:Date.now(),title,text,date:new Date().toLocaleDateString()
+      });
+      e.target.reset();
+      saveDB("Announcement added.");
+    });
+
+    function deleteAnnouncement(id) {
+      db.announcements=db.announcements.filter(x=>x.id!==id);
+      saveDB("Announcement deleted.");
+    }
+
+    document.getElementById("teamForm").addEventListener("submit",e=>{
+      e.preventDefault();
+      if(!adminUnlocked) return;
+
+      const name=document.getElementById("newTeamName").value.trim();
+      const owner=document.getElementById("newTeamOwner").value.trim();
+      const conference=document.getElementById("newTeamConference").value;
+      const division=document.getElementById("newTeamDivision").value;
+
+      if(!name||!owner) { toast("Team name and owner are required.","error"); return; }
+      if(db.teams.some(t=>t.name.toLowerCase()===name.toLowerCase())) {
+        toast("That team already exists.","error"); return;
+      }
+
+      const id="team-"+Date.now();
+      db.teams.push({
+        id,name,owner,conference,division,password:"rNFL"+String(db.teams.length+1).padStart(2,"0"),
+        roster:generateRoster(db.teams.length)
+      });
+      db.standings.push({teamId:id,W:0,L:0,T:0,PF:0,PA:0,streak:"-"});
+      e.target.reset();
+      saveDB("Team added.");
+    });
+
+    function editTeam(id) {
+      const team=teamById(id);
+      if(!team) return;
+
+      const name=prompt("Team name:",team.name);
+      if(name===null) return;
+      const owner=prompt("Owner name:",team.owner);
+      if(owner===null) return;
+      const password=prompt("Owner password:",team.password);
+      if(password===null) return;
+
+      team.name=name.trim()||team.name;
+      team.owner=owner.trim()||team.owner;
+      team.password=password.trim()||team.password;
+      saveDB("Team updated.");
+    }
+
+    function deleteTeam(id) {
+      if(db.teams.length<=1) { toast("Cannot delete the last team.","error"); return; }
+      const team=teamById(id);
+      if(!team) return;
+
+      if(!confirm("Delete "+team.name+"?")) return;
+
+      db.teams=db.teams.filter(t=>t.id!==id);
+      db.standings=db.standings.filter(s=>s.teamId!==id);
+      db.games=db.games.filter(g=>g.awayId!==id && g.homeId!==id);
+      saveDB("Team deleted.");
+    }
+
+    document.getElementById("adminGameForm").addEventListener("submit",e=>{
+      e.preventDefault();
+      if(!adminUnlocked) return;
+
+      const week=Number(document.getElementById("adminGameWeek").value);
+      const awayId=document.getElementById("adminAway").value;
+      const homeId=document.getElementById("adminHome").value;
+      const dateValue=document.getElementById("adminDate").value;
+      const awayScore=document.getElementById("adminAwayScore").value;
+      const homeScore=document.getElementById("adminHomeScore").value;
+
+      if(awayId===homeId) { toast("Away and home teams must be different.","error"); return; }
+
+      const game={
+        id:Date.now(),week,awayId,homeId,
+        date:dateValue?new Date(dateValue).toISOString():new Date().toISOString(),
+        status:(awayScore!=="" && homeScore!=="")?"Final":"Scheduled",
+        awayScore:awayScore!==""?Number(awayScore):null,
+        homeScore:homeScore!==""?Number(homeScore):null
+      };
+
+      db.games.push(game);
+      if(game.status==="Final") updateStandingsFromGame(game);
+      e.target.reset();
+      saveDB("Schedule game added.");
+    });
+
+    document.getElementById("disciplineForm").addEventListener("submit",e=>{
+      e.preventDefault();
+      if(!adminUnlocked) return;
+
+      const teamId=document.getElementById("disciplineTeam").value;
+      const reason=document.getElementById("disciplineReason").value.trim();
+      const amount=Number(document.getElementById("disciplineAmount").value||0);
+      const type=document.getElementById("disciplineType").value;
+
+      if(!teamId||!reason||amount<0) {
+        toast("Complete discipline fields.","error"); return;
+      }
+
+      db.discipline.push({
+        id:Date.now(),teamId,reason,amount,type,date:new Date().toISOString()
+      });
+
+      e.target.reset();
+      saveDB("Discipline record added.");
+    });
+
+    function saveAllSettings() {
+      if(!adminUnlocked) return;
+
+      const season=document.getElementById("settingSeason").value.trim();
+      const week=Number(document.getElementById("settingWeek").value);
+      const commissioner=document.getElementById("settingCommissioner").value.trim();
+      const discord=document.getElementById("settingDiscord").value.trim();
+      const youtube=document.getElementById("settingYoutube").value.trim();
+      const companion=document.getElementById("settingCompanion").value.trim();
+
+      if(!season||!commissioner||week<1||week>18) {
+        toast("Check the league settings.","error"); return;
+      }
+
+      db.settings.season=season;
+      db.settings.currentWeek=week;
+      db.settings.commissioner=commissioner;
+      db.settings.discordUrl=discord;
+      db.settings.youtubeUrl=youtube;
+      db.settings.companionUrl=companion;
+
+      selectedScheduleWeek=week;
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(db));
+      toast("All league settings saved.");
+      renderAll();
+    }
+
+    function copyText(id) {
+      const value=document.getElementById(id)?.value;
+      if(!value) { toast("There is nothing to copy.","error"); return; }
+
+      navigator.clipboard.writeText(value).then(()=>{
+        toast("Copied to clipboard.");
+      }).catch(()=>{
+        const input=document.getElementById(id);
+        input.select();
+        document.execCommand("copy");
+        toast("Copied to clipboard.");
+      });
+    }
+
+    function openUrl(id) {
+      const value=document.getElementById(id)?.value?.trim();
+      if(!value) { toast("Enter a URL first.","error"); return; }
+      if(!isValidUrl(value)) { toast("Enter a valid URL.","error"); return; }
+      window.open(value,"_blank","noopener,noreferrer");
+    }
+
+    function isValidUrl(value) {
+      try {
+        const u=new URL(value);
+        return ["http:","https:"].includes(u.protocol);
+      } catch(e) { return false; }
+    }
+
+    function formatDate(value) {
+      try {
+        return new Date(value).toLocaleString([],{
+          month:"short",day:"numeric",year:"numeric",
+          hour:"numeric",minute:"2-digit"
+        });
+      } catch(e) { return value; }
+    }
+
+    // Keyboard shortcut: Escape clears modal-like access states.
+    document.addEventListener("keydown",e=>{
+      if(e.key==="Escape" && currentPage==="admin" && adminUnlocked) {
+        adminUnlocked=false;
+        document.getElementById("adminLock").classList.remove("hidden");
+        document.getElementById("adminPanel").classList.add("hidden");
+        toast("Admin session locked.");
+      }
+    });
+
+    // Initialize
+    document.addEventListener("DOMContentLoaded",()=>{
+      renderAll();
+      showPage("home");
+    });
+  </script>
+
+</body>
+</html>
